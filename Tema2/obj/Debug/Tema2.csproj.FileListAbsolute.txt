@@ -1,0 +1,7 @@
+C:\Users\n.bermejillo.2021\source\repos\Entornos Multijugador Mostoles\Tema2\bin\Debug\Tema2.exe.config
+C:\Users\n.bermejillo.2021\source\repos\Entornos Multijugador Mostoles\Tema2\bin\Debug\Tema2.exe
+C:\Users\n.bermejillo.2021\source\repos\Entornos Multijugador Mostoles\Tema2\bin\Debug\Tema2.pdb
+C:\Users\n.bermejillo.2021\source\repos\Entornos Multijugador Mostoles\Tema2\obj\Debug\Tema2.csproj.AssemblyReference.cache
+C:\Users\n.bermejillo.2021\source\repos\Entornos Multijugador Mostoles\Tema2\obj\Debug\Tema2.csproj.CoreCompileInputs.cache
+C:\Users\n.bermejillo.2021\source\repos\Entornos Multijugador Mostoles\Tema2\obj\Debug\Tema2.exe
+C:\Users\n.bermejillo.2021\source\repos\Entornos Multijugador Mostoles\Tema2\obj\Debug\Tema2.pdb
