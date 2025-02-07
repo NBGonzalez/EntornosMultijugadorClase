@@ -1,0 +1,44 @@
+﻿using System;
+using System.Threading;
+
+namespace Tema2
+{
+    internal class Ejercicio02
+    {
+        static volatile int producto;
+        static volatile Random random = new Random();
+
+        static volatile bool continuarConsumido = false;
+        static volatile bool productorContinua = true;
+        static void Productor()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                while (!productorContinua) { }
+                producto = random.Next(10);
+                Console.WriteLine("Productor: " + producto.ToString());
+                productorContinua = false;
+                continuarConsumido = true;
+            }
+            
+        }
+        static void Consumidor()
+        {
+            for(int i = 0;i < 5; i++)
+            {
+                while (!continuarConsumido) { }
+                Console.WriteLine("Consumidor: " + producto.ToString());
+                continuarConsumido = false;
+                productorContinua = true;
+            }
+        }
+        static void Main(string[] cosas)
+        {
+            Thread productor = new Thread(Productor);
+            Thread consumidor = new Thread(Consumidor);
+            
+            productor.Start();
+            consumidor.Start();
+        }
+    }
+}
