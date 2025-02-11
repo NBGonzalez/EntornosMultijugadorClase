@@ -1,0 +1,3 @@
+﻿Resolverlo con un solo booleano el ejercicio 04
+
+En vez de tener un cliente y un servidor como resolverlo con N clientes y 1 servidor?

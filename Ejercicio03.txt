@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ConsoleApp1
+{
+    internal class Ejercicio03
+    {
+        static volatile bool waitCliente = false;
+        static volatile bool waitServidor = false;
+
+        static volatile int dato;
+        static Random rand = new Random();
+
+        static void Cliente()
+        {
+            dato = rand.Next(10);
+            Console.WriteLine("Cliente (input): " + dato);
+            waitServidor = true;
+            while (!waitCliente) { }
+            Console.WriteLine("Cliente (game state): " + dato);
+        }
+        static void Servidor()
+        {
+            while (!waitServidor) { }
+            Console.WriteLine("Servidor (input): " + dato);
+            dato += 1;
+            Console.WriteLine("Servidor (game state): " + dato);
+            waitCliente = true;
+        }
+
+        static void Main(string[] args)
+        {
+            Thread cliente = new Thread(Cliente);
+            Thread servidor = new Thread(Servidor);
+
+            cliente.Start();
+            servidor.Start();
+        }
+    }
+}

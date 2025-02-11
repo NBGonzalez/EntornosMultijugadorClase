@@ -1,0 +1,54 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ConsoleApp1
+{
+    internal class Ejercicio04
+    {
+        static volatile bool inputProcesado = false;
+        static volatile bool inputGenerado = false;
+
+        static volatile int input;
+        static volatile int gameState;
+        static Random rand = new Random();
+
+        static void Cliente()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                input = i;
+                Console.WriteLine("Cliente (input): " + input);
+                inputGenerado = true;
+                while (!inputProcesado) { }
+                Console.WriteLine("Cliente (game state): " + gameState);
+                inputProcesado = false;
+            }
+        }
+
+        static void Servidor()
+        {
+            for(int i = 0;i < 10;i++)
+            {
+                while (!inputGenerado) { }
+                inputGenerado = false;
+                Console.WriteLine("\tServidor (input): " + input);
+                gameState = input * 2;
+                Console.WriteLine("\tServidor (game state): " + gameState);
+                inputProcesado = true;
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            Thread cliente = new Thread(Cliente);
+            Thread servidor = new Thread(Servidor);
+
+            cliente.Start();
+            servidor.Start();
+        }
+    }
+}
