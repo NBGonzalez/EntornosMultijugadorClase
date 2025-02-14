@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ConsoleApp2
+{
+    internal class Ejercicio09Downloader
+    {
+        private const int N_FRAGMENTOS = 10;
+        private const int N_HILOS = 3;
+        private static volatile int[] fichero = new int[N_FRAGMENTOS];
+        static Random _random = new Random();
+
+        static Mutex emSiguienteFragmento = new Mutex();
+        static volatile int siguienteFragmento = 0;
+
+        private static int DescargaDatos(int numFragmento)
+        {
+            Thread.Sleep(_random.Next(1000));
+            return numFragmento * 2;
+        }
+        private static void MostrarFichero()
+        {
+            Console.WriteLine("--------------------------------------------------");
+
+            Console.Write("File = [");
+            for (int i = 0; i < N_FRAGMENTOS; i++)
+            {
+                Console.Write(fichero[i] + ",");
+            }
+            Console.WriteLine("]");
+        }
+        public static void Downloader()
+        {
+            int index;
+
+            while (true)
+            {
+                emSiguienteFragmento.WaitOne();
+                if (siguienteFragmento < N_FRAGMENTOS)
+                {
+                    index = siguienteFragmento++;
+                    emSiguienteFragmento.ReleaseMutex();
+                }
+                else
+                {
+                    emSiguienteFragmento.ReleaseMutex();
+                    break;
+                }
+
+                int dato = DescargaDatos(index);
+                fichero[index] = dato;
+            }
+        }
+        public static void Main(String[] args)
+        {
+            Thread[] threads = new Thread[N_HILOS];
+            for (int i = 0; i < N_HILOS; i++)
+            {
+                threads[i] = new Thread(Downloader);
+                threads[i].Start();
+            }
+            for (int i = 0; i < N_HILOS; i++)
+            {
+                threads[i].Join();
+            }
+            MostrarFichero();
+        }
+
+    }
+
+}
+
