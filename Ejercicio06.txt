@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ConsoleApp2
+{
+    internal class Ejercicio06
+    {
+        const int N_PERSONAS = 3;
+        static Mutex mutex = new Mutex();
+        static Random random = new Random();
+        static volatile int personasEnElMuseo = 0;
+
+        static void Persona()
+        {
+            while (true)
+            {
+                mutex.WaitOne();
+                WriteLine("Hola! hay " + personasEnElMuseo + " personas en el museo.");
+                personasEnElMuseo++;
+                mutex.ReleaseMutex();
+
+                WriteLine("qué bonito!");
+                WriteLine("alucinante!");
+
+                
+                mutex.WaitOne();
+                personasEnElMuseo--;
+                WriteLine("Adiós! Quedan " + personasEnElMuseo + " personas en el museo.");
+                mutex.ReleaseMutex();
+
+                for (int i = 0; i < random.Next(1,10); i++)
+                {
+                    WriteLine("Paseo");
+                }
+            }
+            
+
+        }
+        static void Main(string[] args)
+        {
+            for (int i = 0; i < N_PERSONAS; i++)
+            {
+                Thread thread = new Thread(Persona);
+                thread.Name = new string('\t', i);
+                thread.Start();
+            }
+        }
+
+        static void WriteLine(string s)
+        {
+            Thread.Sleep(10);
+            Console.WriteLine(Thread.CurrentThread.Name + s);
+            Thread.Sleep(10);
+        }
+    }
+}
