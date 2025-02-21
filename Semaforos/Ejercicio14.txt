@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace ConsoleApp3
+{
+    internal class Program
+    {
+        static SemaphoreSlim emNProcesos = new SemaphoreSlim(1);
+        static SemaphoreSlim hilosTerminados = new SemaphoreSlim(0);
+        static volatile int nProcesos = 0;
+        const int N_PROCESOS = 4;
+        static void Proceso()
+        {
+            Console.Write("A");
+
+            emNProcesos.Wait();
+            nProcesos++;
+            if (nProcesos > N_PROCESOS - 1)
+            {
+                emNProcesos.Release();
+                hilosTerminados.Wait();
+            }
+            else
+            {
+                emNProcesos.Release();
+                hilosTerminados.Release(4);
+            }
+
+            Console.Write("B");
+        }
+        static void Main(string[] args)
+        {
+            for (int i = 0; i < N_PROCESOS; i++)
+            {
+                new Thread(Proceso).Start();
+            }
+        }
+    }
+}
