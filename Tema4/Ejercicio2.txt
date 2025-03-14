@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace Ejercicio2Tema4_2
+{
+    internal class Ejercicio2
+    {
+        void Mensajes()
+        {
+            string[] mensajes = { "La vida es bella", "O no...", "Los pajaritos cantan", "Y molestan..." };
+
+            foreach (var mensaje in mensajes)
+            {
+                WriteLine(mensaje);
+                try
+                {
+                    Thread.Sleep(2000);
+                }
+                catch(ThreadInterruptedException e)
+                {
+                    WriteLine("¡Me interrumpieron!");
+                    return;
+                }
+                catch (ThreadAbortException)
+                {
+                    WriteLine("¡Me abortaron!");
+                    return;
+                }
+            }
+        
+        }
+        void Exec()
+        {
+            Thread.CurrentThread.Name = "Main";
+            WriteLine("Iniciando programa");
+            var mensajes = new Thread(Mensajes);
+            mensajes.Name = "Mensajes";
+            mensajes.Start();
+
+            int segundosEsperando = 0;
+            while (true)
+            {
+                mensajes.Join(1000); // Me bloqueo y espero 1 segundo
+                if (!mensajes.IsAlive)
+                {
+                    return;
+                }
+                segundosEsperando++;
+                if(segundosEsperando < 5)
+                {
+                    WriteLine("Todavía esperando");
+                }
+                else
+                {
+                    WriteLine("Cansado de esperar");
+                    mensajes.Interrupt();
+                    mensajes.Join();
+                    WriteLine("¡Por fin!");
+                    return;
+                }
+                
+            }
+        }
+        void WriteLine(string message)
+        {
+            Console.WriteLine("[{0}] {1}", Thread.CurrentThread.Name, message); 
+        }
+        static void Main(string[] args)
+        {
+            new Ejercicio2().Exec();
+
+        }
+    }
+}
