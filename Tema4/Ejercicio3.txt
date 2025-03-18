@@ -1,0 +1,54 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Ejercicio4Tema4
+{
+    internal class Ejercicio3
+    {
+        volatile bool producido = false;
+        volatile float producto;
+        SincCond sincCond = new SincCond();
+
+        public void Productor()
+        {
+            Random random = new Random();
+            producto = random.Next(1, 10);
+            Console.WriteLine("[P] Producto: {0}", producto);
+            sincCond.Signal();
+        }
+        public void Consumidor()
+        {
+            sincCond.Await();
+            Console.WriteLine("[C] Producto: {0}", producto);
+        }
+        public void Exec()
+        {
+            new Thread(() => Productor()).Start();
+            new Thread(() => Consumidor()).Start();
+        }
+
+        class SincCond
+        {
+            bool lockFlag = false;
+
+            public void Await()
+            {
+                while (lockFlag) ;
+            }
+
+            public void Signal()
+            {
+                lockFlag = true;
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            new Ejercicio3().Exec();
+        }
+    }
+}
