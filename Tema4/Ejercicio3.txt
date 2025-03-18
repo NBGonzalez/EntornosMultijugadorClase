@@ -33,7 +33,7 @@ namespace Ejercicio4Tema4
 
         class SincCond
         {
-            bool lockFlag = false;
+            volatile bool lockFlag = false;
 
             public void Await()
             {
