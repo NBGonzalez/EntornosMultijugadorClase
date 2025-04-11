@@ -1,0 +1,173 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace Ejercicio13_MECHWARRIOR
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            new Fabrica().Exec();
+        }
+    }
+    class Fabrica
+    {
+        const int NUM_ROBOTS = 5;
+        private readonly int NUM_TIPO_PIEZAS;
+        const int MAX_PIEZAS = 20;
+        private readonly Almacen almacen;
+
+        public static readonly Random random = new Random();
+
+        // Inicializar almacen //
+        // Crear Robots        //
+        // Crear Maquinas      //
+        public Fabrica()
+        {
+            almacen = new Almacen(MAX_PIEZAS);
+            NUM_TIPO_PIEZAS = Enum.GetNames(typeof(TipoPieza)).Length;
+        }
+        public void Exec()
+        {
+            CrearMaquinas(NUM_TIPO_PIEZAS);
+            CrearRobots(NUM_ROBOTS);
+        }
+
+        private void CrearRobots(int numRobots)
+        {
+            for (int i = 0; i < numRobots; i++)
+            {
+                new Thread(new Robot(almacen).Exec).Start();
+            }
+        }
+
+        private void CrearMaquinas(int numTipoPiezas)
+        {
+            for (int i = 0;i < numTipoPiezas; i++)
+            {
+                new Thread(new Maquina(almacen, (TipoPieza)i).Exec).Start();
+            }
+        }
+    }
+    class Maquina
+    {
+        private readonly Almacen almacen;
+        private readonly TipoPieza tipoPieza;
+        public Maquina(Almacen almacen, TipoPieza tipoPieza)
+        {
+            this.almacen = almacen;
+            this.tipoPieza = tipoPieza;
+        }
+        public void Exec()
+        {
+            while (true)
+            {
+                var pieza = FabricarPieza(); // Fabrico pieza
+                AlmacenarPieza(pieza);// Almaceno en almacen
+            }
+            
+        }
+        double FabricarPieza()
+        {
+            Thread.Sleep(Fabrica.random.Next(1000, 2000));
+            return Fabrica.random.NextDouble() + (int)tipoPieza;
+        }
+        void AlmacenarPieza(double pieza)
+        {
+            Thread.Sleep(Fabrica.random.Next(250, 500));
+            almacen.AlmacenarPieza(tipoPieza, pieza);
+
+        }
+    }
+    class Robot
+    {
+        private readonly Almacen almacen;
+        public Robot(Almacen almacen)
+        {
+            this.almacen = almacen;
+        }
+        public void Exec()
+        {
+            while (true)
+            {
+                Mecha mecha = new Mecha();
+                foreach (TipoPieza tipoPieza in Enum.GetValues(typeof(TipoPieza)))
+                {
+                    var pieza = RecogerPieza(tipoPieza);
+                    MontarPieza(mecha, tipoPieza, pieza);
+                }
+                mecha.FinalizarMecha();
+            }
+        }
+
+        double RecogerPieza(TipoPieza tipoPieza)
+        {
+            Thread.Sleep(Fabrica.random.Next(250, 500));
+            var pieza = almacen.RecogerPieza(tipoPieza);
+            return pieza;
+        }
+        private void MontarPieza(Mecha mecha, TipoPieza tipoPieza, double pieza)
+        {
+            Thread.Sleep(Fabrica.random.Next(250, 500));
+            mecha.MontarPieza(tipoPieza, pieza);
+        }
+    }
+    class Almacen
+    {
+        private readonly int maxPiezas;
+        private readonly Dictionary<TipoPieza, BlockingCollection<double>> almacen = new Dictionary<TipoPieza, BlockingCollection<double>>();
+        public Almacen(int maxPiezas)
+        {
+            this.maxPiezas = maxPiezas;
+            foreach(TipoPieza tipoPieza in Enum.GetValues(typeof(TipoPieza)))
+            {
+                almacen.Add(tipoPieza, new BlockingCollection<double>(maxPiezas));
+            }
+        }
+        internal void AlmacenarPieza(TipoPieza tipoPieza, double pieza)
+        {
+            almacen[tipoPieza].Add(pieza);
+        }
+
+        internal double RecogerPieza(TipoPieza tipoPieza)
+        {
+            var pieza = almacen[tipoPieza].Take();
+            return pieza;
+        }
+    }
+    class Mecha
+    {
+        private readonly double[] piezas;
+        public Mecha()
+        {
+            piezas = new double[Enum.GetValues(typeof(TipoPieza)).Length];
+        }
+        internal void MontarPieza(TipoPieza tipoPieza, double pieza)
+        {
+            piezas[(int)tipoPieza] = pieza;
+        }
+        internal void FinalizarMecha()
+        {
+            Console.WriteLine();
+            Console.WriteLine("=====================");
+            for (int i = 0; i < piezas.Length; i++)
+            {
+                Console.WriteLine($"{(TipoPieza)i} - {piezas[i]}");
+            }
+            Console.WriteLine("=====================");
+        }
+    }
+    public enum TipoPieza
+    {
+        Cabeza = 0,
+        Torso = 1,
+        BrazoIzq = 2,
+        BrazoDch = 3,
+        PiernaIzq = 4,
+        PiernaDch = 5
+    }
+}
